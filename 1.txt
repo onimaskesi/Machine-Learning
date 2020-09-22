@@ -1,0 +1,4 @@
+- Phyton ile Makine öğrenmesi -
+CRISP-DM metodolojisi (Proje geliştirme yol haritası) 
+www.bilkav.com/makine-ogrenmesi-egitimi
+
