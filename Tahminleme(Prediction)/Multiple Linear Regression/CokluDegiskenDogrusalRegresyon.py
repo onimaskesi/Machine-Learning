@@ -32,6 +32,7 @@ ulke = ohe.fit_transform(ulke).toarray()
 #print(ulke)
 
 # Kategorik Verileri, Nümeriğe Dönüştürme (Binomial)
+# Dummy Variable engellemek adına tek bir kolon kullanılır (KadınMi kolonu yeterlidir)
 
 # ilgili kategorik stunu(cinsiyet) verilerden ayrıştırma işlemi
 cinsiyet = veriler[['cinsiyet']]
@@ -66,10 +67,12 @@ print(veriler)
 
 # x => bağımsız değişkenler, y => bağımlı değişkenler (sonuç kısmı)
 
-x = veriler.iloc[: , 0:6 ]
-#print(x)
-y = veriler.iloc[: , 6:7]
-#print(y)
+x1 = veriler.iloc[: , :3 ] # fr, tr, us (boy kolonunun sağı)
+x2 = veriler.iloc[: , 4: ] # kilo, yas, KadınMi (boy kolonunun solu)
+x = pd.concat([x1,x2] , axis=1)
+print(x)
+y = veriler.iloc[: , 3:4] # boy kolonu
+print(y)
 
 from sklearn.model_selection import train_test_split
 
@@ -83,14 +86,48 @@ y_train = y_train.sort_index()
 x_test = x_test.sort_index()
 y_test = y_test.sort_index()
 
-# Öznitelik Ölçekleme
+# Linear model oluşturulması
 
-# Standard scaler kullanımı; Verileri bilbirlerine daha yakın bir hale getirmeyi amaçlar
-# Diğer bir deyişle farklı dünyaya ait verileri aynı dünyaya çekmek amaçlı yapılan bir işlemdir
+from sklearn.linear_model import LinearRegression
 
-from sklearn.preprocessing import StandardScaler
+regressor = LinearRegression()
+regressor.fit(x_train,y_train)
 
-sc = StandardScaler()
+y_prediction = regressor.predict(x_test)
 
-X_train = sc.fit_transform(x_train)
-X_test = sc.fit_transform(x_test)
+
+#Backward Elimination
+
+import statsmodels.api as sm
+
+# oluşturulacak olan multiple regression fonksiyonuda sabit sayı değerini tanımlamak adına listeye 1 leden oluşan bir stun eklenir
+X = np.append(arr = np.ones((len(x),1)).astype(int) , values = x, axis=1) 
+
+X_l = x.iloc[ : , [0,1,2,3,4,5] ]
+X_l = np.array(X_l, dtype=float)
+model = sm.OLS( y , X_l).fit()
+print(model.summary())
+
+# en yüksek p değerine sahip olan değişken sistemden çıkarılır
+
+X_l = x.iloc[ : , [0,1,2,3,5] ]
+X_l = np.array(X_l, dtype=float)
+model = sm.OLS( y , X_l).fit()
+print(model.summary())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
